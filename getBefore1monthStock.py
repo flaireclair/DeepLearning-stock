@@ -3,8 +3,10 @@ import requests
 from bs4 import BeautifulSoup
 import sys
 import codecs
+import re
 
-sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+# for linuxOS
+#sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 # アクセスするURL
 url = "http://www.nikkei.com/markets/kabu/nidxprice/"
@@ -60,7 +62,7 @@ for tag in tr :
 title = soup.title.string
 
 # タイトルを文字列を出力
-print (title)
+print (str(title))
 
 pri_len = len(name)
 i = 0
@@ -83,24 +85,45 @@ for b_num in brand :
         tr_1mon_table = soup_1mon.find_all("table")
         tr_1mon = []
         tr_1mon_tbody = []
+        th_title = []
+        th_with_days = []
         th = []
         td = [[] for i in range(25)]
         stock_num = 0
+        print("")
         print(name[brand_num])
         for tmp_table in tr_1mon_table :
             tr_1mon_tbody = tmp_table.find_all("tbody")
+            tr_1mon_thead = tmp_table.find_all("thead")
+        for tmp_thead in tr_1mon_thead :
+            tr_thead = tmp_thead.find_all("th")
+        for tmp_tr_thead in tr_thead :
+            th_title.append(tmp_tr_thead.string.replace("\r", "").replace("\n", ""))
+        print("{0[0]:8}  :  {0[1]}  :  {0[2]}  :  {0[3]}  :  {0[4]}  :  {0[5]}  :  {0[6]}".format(th_title))
         for tmp_tbody in tr_1mon_tbody :
             tr_1mon.append(tmp_tbody.find_all("tr"))
         for tmp_tr_list in tr_1mon :
             for tmp_tr in tmp_tr_list :
                 th_1mon = tmp_tr.find_all("th")
                 for tmp_th in th_1mon :
-                    th.append(tmp_th.string.replace("\r", "").replace("\n", "").replace(" ", ""))
+                    th_with_days.append(tmp_th.string.replace("\r", "").replace("\n", "").replace(" ", ""))
                 td_1mon = (tmp_tr.find_all("td"))
                 for tmp_td in td_1mon :
                     td[stock_num].append(tmp_td.string)
-                print((u"{0} : {1}".format(th[stock_num], td[stock_num])).replace("u", ""))
+                result_replace = re.sub('[^0-9, /]', '', th_with_days[stock_num])
+                tmp_num = re.match('[0-9]+', result_replace)
+                if tmp_num.group() == '1' :
+                    appendance = re.sub('1/', '2019/1/', result_replace)
+                elif tmp_num.group() == '2' :
+                    appendance = re.sub('2/', '2019/2/', result_replace)
+                elif tmp_num.group() == '12' :
+                    appendance = re.sub('12/', '2018/12/', result_replace)
+                th.append(appendance)
+                print((u"{0:10} : {1}".format(th[stock_num], td[stock_num])).replace("u", ""))
                 stock_num += 1
         brand_num += 1
     except :
-        pass
+        # for debug
+        break
+
+        #pass
