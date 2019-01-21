@@ -1,3 +1,3 @@
 # DeepLearning-stock
 
-dev
+this GitHub repository is for fintech data championship.
