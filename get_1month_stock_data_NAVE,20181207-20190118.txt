@@ -1,4 +1,3 @@
-日経平均採用銘柄の株価一覧　:株式　:マーケット　:日経電子版
 brand : 1333, name : マルハニチロ, ratio : ＋10  , sales_volume :     116,100
 brand : 1332, name : 　　　　日水, ratio : ＋6   , sales_volume :   2,053,200
 brand : 1605, name : 国際石開帝石, ratio : ＋39  , sales_volume :   5,187,600
