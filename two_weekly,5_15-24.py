@@ -187,9 +187,10 @@ for b_num in brand :
                 th.append(appendance)
                 if stock_num == 5 :
                     print((u"{0[3]}".format(td[stock_num])).replace("u", "").replace(',', ''))
+                    #f.write((u"{0[3]}\n".format(td[stock_num])).replace("u", "").replace(',', '').encode('utf-8'))
                 elif stock_num >= 15 :
                     print((u"{0[3]}".format(td[stock_num])).replace("u", "").replace(',', ''))
-                #f.write((u"{0:10} : {1}\n".format(th[stock_num], td[stock_num])).replace("u", "").encode('utf-8'))
+                    #f.write((u"{0[3]}\n".format(td[stock_num])).replace("u", "").replace(',', '').encode('utf-8'))
                 stock_num += 1
             #dif_fourday_twoweekly()
         brand_num += 1
