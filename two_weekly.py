@@ -12,7 +12,7 @@ sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 def import_init() :
     
     # アクセスするURL
-    url = "http://www.nikkei.com/markets/kabu/nidxprice/"
+    url = "http://www.nikkei.com/markets/kabu/nidxprice/?StockIndex=N500"
     
     html = requests.get(url)
     
@@ -21,8 +21,8 @@ def import_init() :
     tr = soup.find_all("tr")
     
     i = 2
-    while i <= 5 :
-        url_tmp = "https://www.nikkei.com/markets/kabu/nidxprice/?StockIndex=NAVE&Gcode=00&hm=%d" % i
+    while i <= 10 :
+        url_tmp = "https://www.nikkei.com/markets/kabu/nidxprice/?StockIndex=N500&Gcode=00&hm=%d" % i
         html_tmp = requests.get(url_tmp)
         soup_tmp = BeautifulSoup(html_tmp.text, "html.parser")
         tr += soup_tmp.find_all("tr")
@@ -188,6 +188,11 @@ def dif_fourday_twoweekly(td, two_weekly_list, dif_four_two_list, dif_four_two_l
             continue
         minus_sum += minus
 
+    if plus_sum == None :
+        plus_sum = 0
+    if minus_sum == None :
+        minus_sum = 0
+    
     two_weekly = float((plus_sum / (plus_sum + (minus_sum * -1))) * 100)
 
     print(two_weekly)
