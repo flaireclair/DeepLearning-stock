@@ -75,7 +75,7 @@ def oneday_stock(tr) :
     return brand, name, ratio, sales_vol
 
 def print_brand_stock(title, brand, name, ratio, sales_vol) :
-    
+    # if write out, add element 'f'
     # タイトルを文字列を出力
     print (title)
     #f.write('{}\n'.format(title.encode('utf-8')))
@@ -92,8 +92,8 @@ def print_brand_stock(title, brand, name, ratio, sales_vol) :
     print(u"銘柄数 : " + str(pri_len))
     #f.write(u"銘柄数 : {}\n".format(pri_len).encode('utf-8'))
 
-def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m) :
-
+def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m) : 
+    # if write out, add element 'f'
     brand_num = 0
     for b_num in brand :
         #try :
@@ -200,7 +200,7 @@ def dif_fourday_twoweekly(td, two_weekly_list, dif_four_two_list, dif_four_two_l
     if two_weekly <= 30 :
         two_weekly_list.append(two_weekly)
 
-        dif_four_two  = float(td[5][3].replace('u', '').replace(',', '')) - float(td[14][3].replace('u', '').replace(',', ''))
+        dif_four_two  = float(td[5][3].replace('u', '').replace(',', '')) - float(td[15][3].replace('u', '').replace(',', ''))
 
         if dif_four_two >= 0 :
             dif_four_two_list_plus.append(dif_four_two)
@@ -227,10 +227,10 @@ def print_two_weekly(t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m) :
 
 def main() :
     tr, title, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = import_init()
-    #f = open('get_1month_stock_data.txt', 'w')
+    #f = open('get_1month_stock_data.csv', 'w')
     brand, name, ratio, sales_vol = oneday_stock(tr)
-    print_brand_stock(title, brand, name, ratio, sales_vol)
-    t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m)
+    print_brand_stock(title, brand, name, ratio, sales_vol) # if write out, add element 'f'
+    t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m) # if write out, add element 'f'
     print_two_weekly(t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m)
     #f.close
 
