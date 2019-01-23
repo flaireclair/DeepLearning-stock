@@ -7,7 +7,7 @@ import re
 import numpy as np
 
 # for linuxOS
-sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+#sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 def import_init() :
     
@@ -93,15 +93,12 @@ def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers) :
             url_long = "https://kabuoji3.com/stock/%s/" % b_num
             html_long = requests.get(url_long, headers=headers)
             soup_long = BeautifulSoup(html_long.content, "html.parser")
-            tr_long_table = soup_long.find_all("table")
-            tr_long = []
+            tr_long = soup_long.find_all("tr")
             tr_thead = []
             tr_long_tbody = []
             tr_long_thead = []
             th_title = []
-            th_thead = []
             th_with_days = []
-            th = []
             td = [[] for i in range(25)]
             stock_num = 0
             print("")
@@ -111,6 +108,7 @@ def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers) :
             for tmp_table in tr_long_table :
                 tr_long_tbody.append(tmp_table.find_all("tbody"))
                 tr_long_thead.append(tmp_table.find("thead"))
+            print(tr_long_tbody)
             for tmp_thead in tr_long_thead :
                 tr_thead.append(tmp_thead.find_all("th"))
             for tmp_tr_thead in tr_thead :
