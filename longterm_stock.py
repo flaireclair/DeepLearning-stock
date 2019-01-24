@@ -7,7 +7,7 @@ import re
 import numpy as np
 
 # for linuxOS
-sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+#sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 def import_init() :
     
