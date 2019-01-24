@@ -48,12 +48,11 @@ def oneday_stock(tr) :
     finish = []
     for tag in tr :
         try:
-            #string_ = tag.get("class").pop(0)
             td = tag.find_all("td")
             if td[1].string == u"東証1部" :
                 for info_b in td[0] :
-                    brand.append(re.sub('[^0-9]', '', info_b.string))
-                    name.append(re.sub('[0-9]', '', info_b.string))
+                    brand.append(re.match('\d+', info_b.string).group())
+                    name.append(re.sub('{}'.format(re.match('\d+', info_b.string).group()), '', info_b.string))
                 for info_s in td[2] :
                     start.append(info_s.string)
                 for info_h in td[3] :
@@ -77,7 +76,7 @@ def print_brand_stock(title, brand, name, start, high, low, finish) :
     i = 0
     
     while i < pri_len :
-        print_ = (u"brand : {}, name : {:->25}, start : {:<6}, high : {:<6}, low : {:<6}, finish : {:<6}".format(brand[i], name[i], start[i], high[i], low[i], finish[i]))
+        print_ = (u"{}, {:->25}, start : {:<6}, high : {:<6}, low : {:<6}, finish : {:<6}".format(brand[i], name[i], start[i], high[i], low[i], finish[i]))
         print(print_.replace('-', u'　'))
         #f.write('{}\n'.format(print_.replace(u"-", u"　").replace(u"±", u"　").encode('utf-8')))
         i += 1
@@ -89,55 +88,55 @@ def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers) :
     # if write out, add element 'f'
     brand_num = 0
     for b_num in brand :
-        #try :
-            url_long = "https://kabuoji3.com/stock/%s/" % b_num
-            html_long = requests.get(url_long, headers=headers)
-            soup_long = BeautifulSoup(html_long.content, "html.parser")
-            tr_long_table = soup_long.find_all("table")
-            tr_long = []
-            tr_thead = []
-            tr_long_tbody = []
-            tr_long_thead = []
-            th_title = []
-            th_thead = []
-            th_with_days = []
-            th = []
-            td = [[] for i in range(25)]
-            stock_num = 0
-            print("")
-            #f.write(u"\n")
-            print(name[brand_num])
-            #f.write('{}\n'.format(name[brand_num].encode('utf-8')))
-            for tmp_table in tr_long_table :
-                tr_long_tbody.append(tmp_table.find_all("tbody"))
-                tr_long_thead.append(tmp_table.find("thead"))
-            for tmp_thead in tr_long_thead :
-                tr_thead.append(tmp_thead.find_all("th"))
-            for tmp_tr_thead in tr_thead :
-                for tmp_tmp_tr_thead in tmp_tr_thead :
-                    th_title.append(tmp_tmp_tr_thead.string)
-            print(u"{0[0]:7}  :  {0[1]}  :  {0[2]}  :  {0[3]}  :  {0[4]}  :  {0[5]}  :  {0[6]}".format(th_title))
-            #f.write(u"{0[0]:7}  :  {0[1]}  :  {0[2]}  :  {0[3]}  :  {0[4]}  :  {0[5]}  :  {0[6]}\n".format(th_title).encode('utf-8'))
-            print(tr_long_tbody)
-            for tmp_tbody in tr_long_tbody :
-                for tmp_tmp_tbody in tmp_tbody :
-                    tr_long.append(tmp_tmp_tbody.find_all("tr"))
-                for tmp_tr_list in tr_long :
-                    for tmp_tr in tmp_tr_list :
-                        td_long = (tmp_tr.find_all("td"))
-                        print(td_long)
-                        for tmp_td in td_long :
-                            td[stock_num].append(tmp_td.string)
+        for _ in range(5) :
+            try :
+                url_long = "http://kabuoji3.com/stock/%s/" % b_num
+                html_long = requests.get(url_long, headers=headers)
+                soup_long = BeautifulSoup(html_long.content, "html.parser")
+                tr_long = soup_long.find_all('tr')
+
+                tr_long_thead = None
+                tr_long_tbody = []
+                th_title = []
+
+                print("")
+                #f.write(u"\n")
+                print(name[brand_num])
+                #f.write('{}\n'.format(name[brand_num].encode('utf-8')))
+                for tmp_table in tr_long :
+                    if tmp_table.find("td") is not None :
+                        tr_long_tbody.append(tmp_table.find_all("td"))
+                    if tr_long_thead == None :
+                        tr_long_thead = (tmp_table.find_all("th"))
+                for tmp_tr_thead in tr_long_thead :
+                    th_title.append(tmp_tr_thead.string)
+                print(u"{0[0]:7}  :  {0[1]}  :  {0[2]}  :  {0[3]}  :  {0[4]}  :  {0[5]}  :  {0[6]}".format(th_title))
+                #f.write(u"{0[0]:7}  :  {0[1]}  :  {0[2]}  :  {0[3]}  :  {0[4]}  :  {0[5]}  :  {0[6]}\n".format(th_title).encode('utf-8'))
+
+                td = [[] for i in range(300)]
+                stock_num = 0
+                
+                for tmp_tbody in tr_long_tbody :
+                    for tmp_td in tmp_tbody :
+                        td[stock_num].append(tmp_td.string)
                     print((u"{0[0]} : {0[1]:^6} : {0[2]:^6} : {0[3]:^6} : {0[4]:^6} : {0[5]:^8} : {0[6]:^10}".format(td[stock_num])).replace("u", ""))
-                    #f.write((u"{0:10} : {1}\n".format(th[stock_num], td[stock_num])).replace("u", "").encode('utf-8'))
+                        #f.write((u"{0:10} : {1}\n".format(th[stock_num], td[stock_num])).replace("u", "").encode('utf-8'))
                     stock_num += 1
-            t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = dif_fourday_twoweekly(td, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m)
-            brand_num += 1
-        #except :
-            # for debug
-            #break
-            
-            #pass
+
+                td = filter(lambda none : none != [], td)
+                t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = dif_fourday_twoweekly(td, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m)
+                brand_num += 1
+                print('brand_num : {}'.format(brand_num))
+
+            except :
+                # for debug
+                #break
+                #continue
+                pass
+            else :
+                break
+        else :
+            continue
     return t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m
 
 def dif_fourday_twoweekly(td, two_weekly_list, dif_four_two_list, dif_four_two_list_plus, dif_four_two_list_minus) :
@@ -188,7 +187,7 @@ def dif_fourday_twoweekly(td, two_weekly_list, dif_four_two_list, dif_four_two_l
     if two_weekly <= 30 :
         two_weekly_list.append(two_weekly)
 
-        dif_four_two  = float(td[5][4].replace('u', '').replace(',', '')) - float(td[15][4].replace('u', '').replace(',', ''))
+        dif_four_two  = float(td[-20][4].replace('u', '').replace(',', '')) - float(td[-10][4].replace('u', '').replace(',', ''))
 
         if dif_four_two >= 0 :
             dif_four_two_list_plus.append(dif_four_two)
