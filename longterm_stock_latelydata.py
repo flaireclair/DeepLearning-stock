@@ -49,7 +49,7 @@ def oneday_stock(tr) :
     for tag in tr :
         try:
             td = tag.find_all("td")
-            if td[1].string == u"" :
+            if td[1].string == u"東証1部" :
                 for info_b in td[0] :
                     brand.append(re.match('\d+', info_b.string).group())
                     name.append(re.sub('{}'.format(re.match('\d+', info_b.string).group()), '', info_b.string))
@@ -102,6 +102,7 @@ def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers, f
                 print("")
                 #f.write(u"\n")
                 print(name[brand_num])
+                f.write('{}\n'.format(name[brand_num].encode('utf-8')))
                 for tmp_table in tr_long :
                     if tmp_table.find("td") is not None :
                         tr_long_tbody.append(tmp_table.find_all("td"))
@@ -115,12 +116,11 @@ def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers, f
                 td = [[] for i in range(300)]
                 stock_num = 0
                 
-                f.write('{}\n'.format(name[brand_num].encode('utf-8')))
                 for tmp_tbody in tr_long_tbody :
                     for tmp_td in tmp_tbody :
                         td[stock_num].append(tmp_td.string)
                     print((u"{0[0]} : {0[1]:^6} : {0[2]:^6} : {0[3]:^6} : {0[4]:^6} : {0[5]:^8} : {0[6]:^10}".format(td[stock_num])).replace("u", ""))
-                    f.write((u"{0[6]}".format(td[stock_num])).replace("u", "").encode('utf-8'))
+                    f.write((u"{0[4]}\n".format(td[stock_num])).replace("u", "").encode('utf-8'))
                     stock_num += 1
 
                 td = filter(lambda none : none != [], td)
