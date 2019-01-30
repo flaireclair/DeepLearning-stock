@@ -7,7 +7,7 @@ import re
 import numpy as np
 
 # for linuxOS
-sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+#sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 def import_init() :
     
@@ -74,7 +74,7 @@ def oneday_stock(tr) :
             #break
     return brand, name, ratio, sales_vol
 
-def print_brand_stock(title, brand, name, ratio, sales_vol) :
+def print_brand_stock(title, brand, name, ratio, sales_vol, f) :
     # if write out, add element 'f'
     # タイトルを文字列を出力
     print (title)
@@ -86,13 +86,13 @@ def print_brand_stock(title, brand, name, ratio, sales_vol) :
     while i < pri_len :
         print_ = (u"brand : {:<4}, name : {:->6}, ratio : {:<5}, sales_volume : {:>11}".format(brand[i], name[i], ratio[i], sales_vol[i]))
         print(print_.replace(u"-", u"　").replace(u"±", u"　"))
-        #f.write('{}\n'.format(print_.replace(u"-", u"　").replace(u"±", u"　").encode('utf-8')))
+        f.write('{}\n'.format(print_.replace(u"-", u"　").replace(u"±", u"　").encode('utf-8')))
         i += 1
         
     print(u"銘柄数 : " + str(pri_len))
-    #f.write(u"銘柄数 : {}\n".format(pri_len).encode('utf-8'))
+    f.write(u"銘柄数 : {}\n".format(pri_len)) # if linuxOS, append .encode('utf-8') after .format(pri_len)
 
-def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m) : 
+def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, f) : 
     # if write out, add element 'f'
     brand_num = 0
     for b_num in brand :
@@ -109,9 +109,9 @@ def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m) :
             td = [[] for i in range(25)]
             stock_num = 0
             print("")
-            #f.write(u"\n")
+            f.write(u"\n")
             print(name[brand_num])
-            #f.write('{}\n'.format(name[brand_num].encode('utf-8')))
+            f.write('{}\n'.format(name[brand_num].encode('utf-8')))
             for tmp_table in tr_1mon_table :
                 tr_1mon_tbody = tmp_table.find_all("tbody")
                 tr_1mon_thead = tmp_table.find_all("thead")
@@ -120,7 +120,7 @@ def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m) :
             for tmp_tr_thead in tr_thead :
                 th_title.append(tmp_tr_thead.string.replace("\r", "").replace("\n", ""))
             print(u"{0[0]:7}  :  {0[1]}  :  {0[2]}  :  {0[3]}  :  {0[4]}  :  {0[5]}  :  {0[6]}".format(th_title))
-            #f.write(u"{0[0]:7}  :  {0[1]}  :  {0[2]}  :  {0[3]}  :  {0[4]}  :  {0[5]}  :  {0[6]}\n".format(th_title).encode('utf-8'))
+            f.write(u"{0[0]:7}  :  {0[1]}  :  {0[2]}  :  {0[3]}  :  {0[4]}  :  {0[5]}  :  {0[6]}\n".format(th_title)) # if linuxOS, append .encode('utf-8') after .format(th_title)
             for tmp_tbody in tr_1mon_tbody :
                 tr_1mon.append(tmp_tbody.find_all("tr"))
             for tmp_tr_list in tr_1mon :
@@ -141,7 +141,7 @@ def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m) :
                         appendance = re.sub('12/', '2018/12/', result_replace)
                     th.append(appendance)
                     print((u"{0:10} : {1}".format(th[stock_num], td[stock_num])).replace("u", ""))
-                    #f.write((u"{0:10} : {1}\n".format(th[stock_num], td[stock_num])).replace("u", "").encode('utf-8'))
+                    f.write((u"{0:10} : {1}\n".format(th[stock_num], td[stock_num])).replace("u", "")) # if linuxOS, append .encode('utf-8') after .replace("u", "")
                     stock_num += 1
             t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = dif_fourday_twoweekly(td, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m)
             brand_num += 1
@@ -227,12 +227,12 @@ def print_two_weekly(t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m) :
 
 def main() :
     tr, title, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = import_init()
-    #f = open('get_1month_stock_data.csv', 'w')
+    f = open('get_1month_stock_data.txt', 'w')
     brand, name, ratio, sales_vol = oneday_stock(tr)
-    print_brand_stock(title, brand, name, ratio, sales_vol) # if write out, add element 'f'
-    t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m) # if write out, add element 'f'
+    print_brand_stock(title, brand, name, ratio, sales_vol, f) # if write out, add element 'f'
+    t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, f) # if write out, add element 'f'
     print_two_weekly(t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m)
-    #f.close
+    f.close
 
 if __name__ == '__main__' :
     main()
