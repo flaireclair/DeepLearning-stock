@@ -49,7 +49,7 @@ def oneday_stock(tr) :
     for tag in tr :
         try:
             td = tag.find_all("td")
-            if td[1].string == u"東証1部" :
+            if td[1].string == u"マザーズ" :
                 for info_b in td[0] :
                     brand.append(re.match('\d+', info_b.string).group())
                     name.append(re.sub('{}'.format(re.match('\d+', info_b.string).group()), '', info_b.string))
@@ -84,8 +84,7 @@ def print_brand_stock(title, brand, name, start, high, low, finish) :
     print(u"銘柄数 : " + str(pri_len))
     #f.write(u"銘柄数 : {}\n".format(pri_len).encode('utf-8'))
 
-def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers, f) : 
-    # if write out, add element 'f'
+def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers, f) : # if write out, add element 'f'
     brand_num = 0
     for b_num in brand :
         for _ in range(3) :
@@ -100,8 +99,9 @@ def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers, f
                 th_title = []
 
                 print("")
-                #f.write(u"\n")
+                f.write(u"\n")
                 print(name[brand_num])
+                f.write('{}\n'.format(brand[brand_num].encode('utf-8')))
                 f.write('{}\n'.format(name[brand_num].encode('utf-8')))
                 for tmp_table in tr_long :
                     if tmp_table.find("td") is not None :
@@ -132,6 +132,8 @@ def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers, f
                 # for debug
                 #break
                 #continue
+                if _ == 2 :
+                    brand_num += 1
                 pass
             else :
                 break
@@ -214,7 +216,7 @@ def print_two_weekly(t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m) :
 
 def main() :
     tr, title, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers = import_init()
-    f = open('get_2018_stock_data.txt', 'w')
+    f = open('get_2018_mothers_stock_data.txt', 'w')
     brand, name, start, high, low, finish = oneday_stock(tr)
     print_brand_stock(title, brand, name, start, high, low, finish) # if write out, add element 'f'
     t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers, f) # if write out, add element 'f'

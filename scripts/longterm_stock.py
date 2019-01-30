@@ -7,7 +7,7 @@ import re
 import numpy as np
 
 # for linuxOS
-#sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 def import_init() :
     
@@ -46,10 +46,11 @@ def oneday_stock(tr) :
     high = []
     low = []
     finish = []
+    print("Hey!")
     for tag in tr :
         try:
             td = tag.find_all("td")
-            if td[1].string == u"" :
+            if td[1].string == u"マザーズ" :
                 for info_b in td[0] :
                     brand.append(re.match('\d+', info_b.string).group())
                     name.append(re.sub('{}'.format(re.match('\d+', info_b.string).group()), '', info_b.string))
@@ -66,7 +67,7 @@ def oneday_stock(tr) :
             #break
     return brand, name, start, high, low, finish
 
-def print_brand_stock(title, brand, name, start, high, low, finish) :
+def print_brand_stock(title, brand, name, start, high, low, finish, f) :
     # if write out, add element 'f'
     # タイトルを文字列を出力
     print (title)
@@ -78,13 +79,14 @@ def print_brand_stock(title, brand, name, start, high, low, finish) :
     while i < pri_len :
         print_ = (u"{}, {:->25}, start : {:<6}, high : {:<6}, low : {:<6}, finish : {:<6}".format(brand[i], name[i], start[i], high[i], low[i], finish[i]))
         print(print_.replace('-', u'　'))
+        f.write("{}\n".format(brand[i]).encode('utf-8'))
         #f.write('{}\n'.format(print_.replace(u"-", u"　").replace(u"±", u"　").encode('utf-8')))
         i += 1
         
     print(u"銘柄数 : " + str(pri_len))
     #f.write(u"銘柄数 : {}\n".format(pri_len).encode('utf-8'))
 
-def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers, f) : 
+def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers) : 
     # if write out, add element 'f'
     brand_num = 0
     for b_num in brand :
@@ -120,7 +122,7 @@ def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers, f
                     for tmp_td in tmp_tbody :
                         td[stock_num].append(tmp_td.string)
                     print((u"{0[0]} : {0[1]:^6} : {0[2]:^6} : {0[3]:^6} : {0[4]:^6} : {0[5]:^8} : {0[6]:^10}".format(td[stock_num])).replace("u", ""))
-                    f.write((u"{0[6]}".format(td[stock_num])).replace("u", "").encode('utf-8'))
+                    #f.write((u"{0[6]}".format(td[stock_num])).replace("u", "").encode('utf-8'))
                     stock_num += 1
 
                 td = filter(lambda none : none != [], td)
@@ -214,10 +216,10 @@ def print_two_weekly(t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m) :
 
 def main() :
     tr, title, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers = import_init()
-    f = open('get_2018_stock_data.txt', 'w')
+    f = open('mothers_stock_number.txt', 'w')
     brand, name, start, high, low, finish = oneday_stock(tr)
-    print_brand_stock(title, brand, name, start, high, low, finish) # if write out, add element 'f'
-    t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers, f) # if write out, add element 'f'
+    print_brand_stock(title, brand, name, start, high, low, finish, f) # if write out, add element 'f'
+    #t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers) # if write out, add element 'f'
     #print_two_weekly(t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m)
     f.close
 
