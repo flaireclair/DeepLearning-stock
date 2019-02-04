@@ -2,12 +2,13 @@
 import requests
 from bs4 import BeautifulSoup
 import sys
-import codecs
+#import codecs
 import re
-import numpy as np
+#import numpy as np
+import pandas as pd
 
 # for linuxOS
-sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+#sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 def import_init() :
     
@@ -46,7 +47,6 @@ def oneday_stock(tr) :
     high = []
     low = []
     finish = []
-    print("Hey!")
     for tag in tr :
         try:
             td = tag.find_all("td")
@@ -67,10 +67,10 @@ def oneday_stock(tr) :
             #break
     return brand, name, start, high, low, finish
 
-def print_brand_stock(title, brand, name, start, high, low, finish, f) :
+def print_brand_stock(title, brand, name, start, high, low, finish) :
     # if write out, add element 'f'
     # タイトルを文字列を出力
-    print (title)
+    #print (u'{}'.format(title).encode('utf-8'))
     #f.write('{}\n'.format(title.encode('utf-8')))
     
     pri_len = len(brand)
@@ -79,7 +79,7 @@ def print_brand_stock(title, brand, name, start, high, low, finish, f) :
     while i < pri_len :
         print_ = (u"{}, {:->25}, start : {:<6}, high : {:<6}, low : {:<6}, finish : {:<6}".format(brand[i], name[i], start[i], high[i], low[i], finish[i]))
         print(print_.replace('-', u'　'))
-        f.write("{}\n".format(brand[i]).encode('utf-8'))
+        #f.write("{}\n".format(brand[i]).encode('utf-8'))
         #f.write('{}\n'.format(print_.replace(u"-", u"　").replace(u"±", u"　").encode('utf-8')))
         i += 1
         
@@ -117,7 +117,7 @@ def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers) :
                 td = [[] for i in range(300)]
                 stock_num = 0
                 
-                f.write('{}\n'.format(name[brand_num].encode('utf-8')))
+                #f.write('{}\n'.format(name[brand_num].encode('utf-8')))
                 for tmp_tbody in tr_long_tbody :
                     for tmp_td in tmp_tbody :
                         td[stock_num].append(tmp_td.string)
@@ -125,7 +125,9 @@ def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers) :
                     #f.write((u"{0[6]}".format(td[stock_num])).replace("u", "").encode('utf-8'))
                     stock_num += 1
 
-                td = filter(lambda none : none != [], td)
+                td = list(filter(lambda none : none != [], td))
+                df = pd.DataFrame(column(td, 0, 6), columns=['date', 'closing price'])
+                df.to_csv("/home/gyuho/Git/DeepLearning-stock/stock_data/2018_mothers_all/stock_data_with_date_{}.csv".format(brand[brand_num]))
                 t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = dif_fourday_twoweekly(td, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m)
                 brand_num += 1
                 print('brand_num : {}'.format(brand_num))
@@ -134,6 +136,8 @@ def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers) :
                 # for debug
                 #break
                 #continue
+                if _ == 2 :
+                    brand_num += 1
                 pass
             else :
                 break
@@ -214,14 +218,21 @@ def print_two_weekly(t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m) :
     print('二週足と四週目の差のうち、プラスの数 : {}\n'.format(len(d_f_t_l_p)))
     print('二週足と四週目の差のうち、マイナスの数 : {}\n'.format(len(d_f_t_l_m)))
 
+def column(matrix, i, j):
+    row = []
+    for num in matrix :
+        row.append([num[i], num[j]])
+    return row
+
+    
 def main() :
     tr, title, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers = import_init()
-    f = open('mothers_stock_number.txt', 'w')
+    #f = open('mothers_stock_number.txt', 'w')
     brand, name, start, high, low, finish = oneday_stock(tr)
-    print_brand_stock(title, brand, name, start, high, low, finish, f) # if write out, add element 'f'
-    #t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers) # if write out, add element 'f'
-    #print_two_weekly(t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m)
-    f.close
+    print_brand_stock(title, brand, name, start, high, low, finish) # if write out, add element 'f'
+    t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers) # if write out, add element 'f'
+    print_two_weekly(t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m)
+    #f.close
 
 if __name__ == '__main__' :
     main()
