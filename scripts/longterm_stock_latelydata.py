@@ -49,7 +49,7 @@ def oneday_stock(tr) :
     for tag in tr :
         try:
             td = tag.find_all("td")
-            if td[1].string == u"マザーズ" :
+            if td[1].string == u"東証1部" :
                 for info_b in td[0] :
                     brand.append(re.match('\d+', info_b.string).group())
                     name.append(re.sub('{}'.format(re.match('\d+', info_b.string).group()), '', info_b.string))
