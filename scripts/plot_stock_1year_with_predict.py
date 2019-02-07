@@ -66,13 +66,13 @@ while True :
         return window_data
     
     
-    window_size = 15
+    window_size = 30
     window_data = split_window_data(
         close_ts, window_size, normalization=False, window_normalization=True)
     # 5. トレーニングデータとテストデータに分ける
     
     
-    def split_train_test_window(np_array_window, window_size, train_rate=0.7, train_shuffle=False):
+    def split_train_test_window(np_array_window, window_size, train_rate, train_shuffle=False):
         window_data = np_array_window.copy()
         # (1218, 16)のデータの7割、つまり(852, 16)のデータをトレーニングデータにして分割
         row = round(train_rate * window_data.shape[0])
@@ -91,19 +91,19 @@ while True :
     
     train_rate = 0.7
     window_data = np.array(window_data)
-    X_train, Y_train, X_test, Y_test = split_train_test_window(window_data, train_rate = train_rate, window_size=window_size, train_shuffle=True)
+    X_train, Y_train, X_test, Y_test = split_train_test_window(window_data, train_rate=train_rate, window_size=window_size, train_shuffle=True)
     # 6. モデルの作成
     # 入力サイズ
     inpiut_size = [X_train.shape[1], X_train.shape[2]]
     # レイヤーを定義
     model = Sequential()
     model.add(LSTM(input_shape=(inpiut_size[0], inpiut_size[1]),
-                   units=15, return_sequences=False))
+                   units=30, return_sequences=False))
     model.add(Dense(units=1))
     model.add(Activation('linear'))
     model.compile(loss='mse', optimizer='adam')
     history = model.fit(X_train, Y_train, batch_size=200,
-                        epochs=100, validation_split=0.1, verbose=0)
+                        epochs=1000, validation_split=0.1, verbose=2)
     
     # -------------------- 学習の過程を可視化する --------------------
     # 損失関数の推移図を出力
@@ -133,7 +133,7 @@ while True :
                                    predicted[-1], axis=0)
         prediction_seqs.append(predicted)
     # 予測結果の出力
-    plt.figure(figsize=(len(prediction_seqs), 100))
+    plt.figure(figsize=(20, 10))
     plt.plot(Y_test, label='True Data')
     plt.plot(np.array(prediction_seqs).flatten().tolist(), label='Prediction')
     plt.legend()
