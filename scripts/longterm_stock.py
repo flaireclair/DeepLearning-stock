@@ -50,7 +50,7 @@ def oneday_stock(tr) :
     for tag in tr :
         try:
             td = tag.find_all("td")
-            if td[1].string == u"マザーズ" :
+            if td[1].string == u"東証1部" :
                 for info_b in td[0] :
                     brand.append(re.match('\d+', info_b.string).group())
                     name.append(re.sub('{}'.format(re.match('\d+', info_b.string).group()), '', info_b.string))
@@ -86,13 +86,13 @@ def print_brand_stock(title, brand, name, start, high, low, finish) :
     print(u"銘柄数 : " + str(pri_len))
     #f.write(u"銘柄数 : {}\n".format(pri_len).encode('utf-8'))
 
-def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers) : 
+def onemonth_stock(year, brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers) : 
     # if write out, add element 'f'
     brand_num = 0
     for b_num in brand :
         for _ in range(3) :
             try :
-                url_long = "http://kabuoji3.com/stock/%s/2018/" % b_num
+                url_long = "http://kabuoji3.com/stock/%s/%s/" % (b_num, year)
                 html_long = requests.get(url_long, headers=headers)
                 soup_long = BeautifulSoup(html_long.content, "html.parser")
                 tr_long = soup_long.find_all('tr')
@@ -126,8 +126,8 @@ def onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers) :
                     stock_num += 1
 
                 td = list(filter(lambda none : none != [], td))
-                df = pd.DataFrame(column(td, 0, 6), columns=['date', 'closing price'])
-                df.to_csv("/home/gyuho/Git/DeepLearning-stock/stock_data/2018_mothers_all/stock_data_with_date_{}.csv".format(brand[brand_num]))
+                df = pd.DataFrame(td, columns=['date', 'start price', 'highest price', 'cheapest price', 'closing price', 'yield', 'fixed closing price'])
+                df.to_csv("/home/gyuho/Git/DeepLearning-stock/stock_data/{0}_tousyou1bu_all/all_stock_data_with_date/all_stock_data_with_date_{1}.csv".format(year, brand[brand_num]))
                 t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = dif_fourday_twoweekly(td, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m)
                 brand_num += 1
                 print('brand_num : {}'.format(brand_num))
@@ -226,11 +226,13 @@ def column(matrix, i, j):
 
     
 def main() :
+    print('何年のデータがほしい？')
+    year = input('>> ')
     tr, title, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers = import_init()
     #f = open('mothers_stock_number.txt', 'w')
     brand, name, start, high, low, finish = oneday_stock(tr)
     print_brand_stock(title, brand, name, start, high, low, finish) # if write out, add element 'f'
-    t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = onemonth_stock(brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers) # if write out, add element 'f'
+    t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m = onemonth_stock(year, brand, name, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers) # if write out, add element 'f'
     print_two_weekly(t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m)
     #f.close
 

@@ -2,3 +2,10 @@ get_1month_stock_data.tx
 get_1month_stock_data.csv
 30_Industry_Portfolios.CSV
 test.py
+scripts/#BIC.py#
+scripts/#two_weekly.py#
+scripts/BIC.py~
+scripts/longterm_stock_nikkeiheikinn_latelydata.py~
+scripts/machine_learning_main.py~
+scripts/plot_stock_1year.py~
+scripts/plot_stock_1year_with_predict.py~
