@@ -13,8 +13,10 @@ import pandas as pd
 def import_year_all_or_only() :
 
     while True :
-        print('何年のデータがほしい？')
+        print('何年のデータがほしい？（直近300日なら0）')
         year = input('>> ')
+        if year == '0' :
+            year = ''
         print('終値だけ？それとも全部？（終値のみ: 1, 全部: 2）')
         only_or_all = input('>> ')
         if only_or_all == '2' :
@@ -47,15 +49,8 @@ def import_init() :
         soup_tmp = BeautifulSoup(html_tmp.content, "html.parser")
         tr += soup_tmp.find_all("tr")
         i += 1
-    
-    title = soup.title.string
 
-    two_weekly_list = []
-    dif_four_two_list = []
-    dif_four_two_list_plus = []
-    dif_four_two_list_minus = []
-
-    return tr, title, two_weekly_list, dif_four_two_list, dif_four_two_list_plus, dif_four_two_list_minus, headers
+    return tr, headers
 
 def import_nikkei_brandnum() :
 
@@ -65,17 +60,12 @@ def import_nikkei_brandnum() :
 
     brand_nikkei = brand_text.split("\n")
     del brand_nikkei[-1]
-    print(brand_nikkei)
     return brand_nikkei
     
 def oneday_stock(tr) :
     
     brand = []
     name = []
-    start = []
-    high = []
-    low = []
-    finish = []
     for tag in tr :
         try:
             td = tag.find_all("td")
@@ -83,48 +73,27 @@ def oneday_stock(tr) :
                 for info_b in td[0] :
                     brand.append(re.match('\d+', info_b.string).group())
                     name.append(re.sub('{}'.format(re.match('\d+', info_b.string).group()), '', info_b.string))
-                for info_s in td[2] :
-                    start.append(info_s.string)
-                for info_h in td[3] :
-                    high.append(info_h.string)
-                for info_l in td[4] :
-                    low.append(info_l.string)
-                for info_f in td[5] :
-                    finish.append(info_f.string)
         except :
             continue
             #break
-    return brand, name, start, high, low, finish
-
-def print_brand_stock(title, brand, name, start, high, low, finish) :
-    # if write out, add element 'f'
-    # タイトルを文字列を出力
-    print (title)
-    #f.write('{}\n'.format(title.encode('utf-8')))
-    
-    pri_len = len(brand)
-    i = 0
-    
-    while i < pri_len :
-        print_ = (u"{}, {:->25}, start : {:<6}, high : {:<6}, low : {:<6}, finish : {:<6}".format(brand[i], name[i], start[i], high[i], low[i], finish[i]))
-        print(print_.replace('-', u'　'))
-        #f.write('{}\n'.format(print_.replace(u"-", u"　").replace(u"±", u"　").encode('utf-8')))
-        i += 1
-        
-    print(u"銘柄数 : " + str(pri_len))
-    #f.write(u"銘柄数 : {}\n".format(pri_len).encode('utf-8'))
+    return brand, name
 
 def onemonth_stock(year, is_all_stock, brand, name, headers, brand_nikkei) : # if write out, add element 'f'
     brand_num = 0
     nikkei_brand_num = 0
-    print("{}\n{}\n".format(brand, brand_nikkei))
     for b_num in brand :
         is_already_add_stock = False
         for _ in range(3) :
             try :
                 for nikkei in brand_nikkei :
                     if nikkei == b_num :
-                        url_long = "http://kabuoji3.com/stock/%s/%s/" % (b_num, year)
+                        if year != '' :
+                            url_long = "http://kabuoji3.com/stock/%s/%s/" % (b_num, year)
+                            add_file_name_year_or_lately = year
+                        else :
+                            url_long = "http://kabuoji3.com/stock/%s/" % (b_num)
+                            add_file_name_year_or_lately = 'lately'
+
                         html_long = requests.get(url_long, headers=headers)
                         soup_long = BeautifulSoup(html_long.content, "html.parser")
                         tr_long = soup_long.find_all('tr')
@@ -159,12 +128,15 @@ def onemonth_stock(year, is_all_stock, brand, name, headers, brand_nikkei) : # i
                             stock_num += 1
 
                         td = list(filter(lambda none : none != [], td))
+
+                        
+                        
                         if is_all_stock :
                             df = pd.DataFrame(td, columns=['date', 'start price', 'highest price', 'cheapest price', 'closing price', 'yield', 'fixed closing price'])
-                            df.to_csv("../stock_data/adopted_nikkeiheikin/{0}/all_stock_data_with_date/all_stock_data_with_date_{1}.csv".format(year, brand[brand_num]))
+                            df.to_csv("../stock_data/adopted_nikkeiheikin/{0}/all_stock_data_with_date/all_stock_data_with_date_{1}.csv".format(add_file_name_year_or_lately, brand[brand_num]))
                         else :
                             df = pd.DataFrame(column(td, 0, 6), columns=['date', 'closing price'])
-                            df.to_csv("../stock_data/adopted_nikkeiheikin/{0}/only_closing_stock_data_with_date/only_closing_stock_data_with_date_{1}.csv".format(year, brand[brand_num]))
+                            df.to_csv("../stock_data/adopted_nikkeiheikin/{0}/only_closing_stock_data_with_date/only_closing_stock_data_with_date_{1}.csv".format(add_file_name_year_or_lately, brand[brand_num]))
                         
                         nikkei_brand_num += 1
                         print('nikkei_brand_num : {}'.format(nikkei_brand_num))
@@ -193,11 +165,10 @@ def column(matrix, i, j):
     
 def main() :
     year, is_all_stock = import_year_all_or_only()
-    tr, title, t_w_l, d_f_t_l, d_f_t_l_p, d_f_t_l_m, headers = import_init()
+    tr, headers = import_init()
     brand_nikkei = import_nikkei_brandnum()
     #f = open('get_2018_nikkeiheikin_stock_data.txt', 'w')
-    brand, name, start, high, low, finish = oneday_stock(tr)
-    print_brand_stock(title, brand, name, start, high, low, finish) # if write out, add element 'f'
+    brand, name = oneday_stock(tr)
     onemonth_stock(year, is_all_stock, brand, name, headers, brand_nikkei) # if write out, add element 'f'
     #f.close
 
