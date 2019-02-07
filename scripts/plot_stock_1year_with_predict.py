@@ -23,9 +23,9 @@ while True :
     while index != []:
         try :
             if is_already_index :
-                df_stock.append(pd.read_csv("../stock_data/201{0}_tousyou1bu_all/stock_data_with_date_{1}.csv".format(str(index[0]), brand_num)))
+                df_stock.append(pd.read_csv("../stock_data/201{0}_tousyou1bu_all/only_closing_stock_data_with_date/stock_data_with_date_{1}.csv".format(str(index[0]), brand_num)))
             else :
-                df_stock = pd.read_csv("../stock_data/201{0}_tousyou1bu_all/stock_data_with_date_{1}.csv".format(str(index[0]), brand_num))
+                df_stock = pd.read_csv("../stock_data/201{0}_tousyou1bu_all/only_closing_stock_data_with_date/stock_data_with_date_{1}.csv".format(str(index[0]), brand_num))
                 is_already_index = True
         except :
             continue
@@ -133,7 +133,7 @@ while True :
                                    predicted[-1], axis=0)
         prediction_seqs.append(predicted)
     # 予測結果の出力
-    plt.figure(figsize=(15, 8))
+    plt.figure(figsize=(len(prediction_seqs), 100))
     plt.plot(Y_test, label='True Data')
     plt.plot(np.array(prediction_seqs).flatten().tolist(), label='Prediction')
     plt.legend()
