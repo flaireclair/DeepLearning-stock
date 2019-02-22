@@ -97,7 +97,7 @@ def getData1(brand_num, array_num, plt_num, no):
 
 def main():
     f = open('nikkei.txt')
-    file = open('target1.txt','w')
+    file = open('target1.txt','a')
     lines = f.readlines()
     target_num = []
     i = 0
