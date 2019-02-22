@@ -19,6 +19,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 
+import matplotlib.pyplot as plt
+plt.style.use('ggplot')
+
 def shapeCsv(brand_num,isTestdata):
     
     modified_data = np.zeros((0,6))
@@ -57,7 +60,7 @@ def shapeCsv(brand_num,isTestdata):
             axis = 0)
         return modified_data
 
-def getData(brand_num):
+def getData(brand_num, array_num, plt_num, no):
 
     modified_data = shapeCsv(brand_num,True)
 
@@ -95,7 +98,7 @@ def getData(brand_num):
 
     # グリッドサーチを実行
     clf = GridSearchCV(svm.LinearSVC(), parameters)
-    clf.fit(X_train, y_train) 
+    clf.fit(X_train, y_train)
  
     # グリッドサーチ結果(最適パラメータ)を取得
     GS_C, GS_loss = clf.best_params_.values()
@@ -107,7 +110,9 @@ def getData(brand_num):
     #2/7までのデータを予想させる
     target_data = shapeCsv(brand_num,False)
 
-    # データの正規化        
+    target_true_data = ms.inverse_transform(target_data)
+
+    # データの正規化
     ms = MinMaxScaler()
     ms.fit(target_data)
     target_data = ms.transform(target_data)
@@ -119,24 +124,41 @@ def getData(brand_num):
 
     target_len = len(target_data)
     target_predict = clf.predict(target_data)
+    target_true_predict = clf.predict(target_true_data)
+
+    #plt.figure(figsize=(100, 60))
+    if brand_num == "2531" or brand_num == "4507" or brand_num == "8035" or brand_num == "8766" or brand_num == "9022" or brand_num == "6098" or brand_num == "4021" or brand_num == "4506" or brand_num == "6367" :
+        plt.subplot(2, 5, no)
+        plt.plot(target_true_predict)
+        plt.title('{}'.format(brand_num))
+        plt.ylabel('varitation')
+        plt.xlabel('date flow')
+        no += 1
+    else :
+        pass
 
     #2/8以降の予想を返す
-    return target_predict[target_len-1]
+    return target_predict[target_len-1], no
 
 def main():
+    no = 1
     f = open('nikkei.txt')
-    file = open('target2.txt','a')
+    fi = open('target2.txt','w')
     lines = f.readlines()
     target_num = []
     i = 0
+    plot_num = range(len(lines))
     for line in lines:
         line = line.replace("\n","")
-        tmp = getData(line)
+        tmp, no = getData(line, i, len(plot_num), no)
         i += 1
         if(tmp == 1):
             target_num.append(line)
-            file.write(line + '\n')
+            fi.write(line + '\n')
+            print(line + '\n')
+            print(type(line))
 
+    plt.show()
     print("uped percent is  " + str(len(target_num)/i) + "  and  all  data  is  "+str(i) + "  and  uped  is  "+str(len(target_num)))
     f.close()
 

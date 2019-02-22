@@ -9,6 +9,8 @@ import pandas as pd
 # グリッドサーチのimport
 from sklearn.model_selection import GridSearchCV
 
+import matplotlib.pyplot as plt
+plt.style.use('ggplot')
 
 def shapeCsv(brand_num,isTestdata):
     # 株価の上昇率を算出、おおよそ-1.0～1.0の範囲に収まるように調整
@@ -30,7 +32,7 @@ def shapeCsv(brand_num,isTestdata):
     return modified_data
 
 
-def getData1(brand_num):
+def getData1(brand_num, array_num, plt_num, no):
     
     modified_data = shapeCsv(brand_num,True)
     # 要素数の設定
@@ -79,9 +81,19 @@ def getData1(brand_num):
             ,tmp_data[i-3],tmp_data[i-2],tmp_data[i-1]])
     target_len = len(target_data)
     target_predict = clf.predict(target_data)
-    
+
+    if brand_num == "2531" or brand_num == "4507" or brand_num == "8035" or brand_num == "8766" or brand_num == "9022" or brand_num == "6098" or brand_num == "4021" or brand_num == "4506" or brand_num == "6367" :
+        plt.subplot(2, 5, no)
+        plt.plot(target_predict)
+        plt.title('{}'.format(brand_num))
+        plt.ylabel('varitation')
+        plt.xlabel('date flow')
+        no += 1
+    else :
+        pass
+
     #2/8以降の予想を返す
-    return target_predict[target_len-1]
+    return target_predict[target_len-1], no
 
 def main():
     f = open('nikkei.txt')
@@ -89,17 +101,19 @@ def main():
     lines = f.readlines()
     target_num = []
     i = 0
-
+    no = 1
+    plot_num = range(len(lines))
     for line in lines:
         line = line.replace("\n","")
-        tmp = getData1(line)
+        tmp, no = getData1(line, i, len(plot_num), no)
         i += 1
 
         # 株価が上昇すると予想できた銘柄をtarget_numに格納
         if(tmp == 1):
             target_num.append(line)
             file.write(line + '\n')
-    
+
+    plt.show()
     # 株価が上昇すると判断した銘柄の割合を出力  
     print("uped percent is  " + str(len(target_num)/i) + "  and  all  data  is  "+str(i) + "  and  uped  is  "+str(len(target_num)))
     f.close()
