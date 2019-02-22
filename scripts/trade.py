@@ -8,7 +8,9 @@ from sklearn.metrics import accuracy_score
 import pandas as pd
 # グリッドサーチのimport
 from sklearn.model_selection import GridSearchCV
-
+import numpy as np
+import matplotlib.pyplot as plt
+plt.style.use('ggplot')
 
 def shapeCsv(brand_num,isTestdata):
     # 株価の上昇率を算出、おおよそ-1.0～1.0の範囲に収まるように調整
@@ -96,6 +98,14 @@ def getData1(brand_num):
     print("トレーニングデータに対する正解率：" + str(train_score * 100) + "%")
     print("テストデータに対する正解率：" + str(test_score * 100) + "%")
 
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(y_train_pred)
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
 
     # 学習後のモデルによるテスト
     # トレーニングデータを用いた予測

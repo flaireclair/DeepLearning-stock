@@ -19,6 +19,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 
+import get_last_working_day as lwd
+
 def shapeCsv(brand_num,isTestdata):
     
     modified_data = np.zeros((0,6))
@@ -31,7 +33,7 @@ def shapeCsv(brand_num,isTestdata):
 
             for i in range(2,tmp_range):
                 modified_data = np.append(
-                modified_data, 
+                modified_data,
                 np.array([[(float(stock_data.iat[i,2]) - float(stock_data.iat[i-1,2]))/float(stock_data.iat[i-1,2]),
                             (float(stock_data.iat[i,3]) - float(stock_data.iat[i-1,3]))/float(stock_data.iat[i-1,3]),
                             (float(stock_data.iat[i,4]) - float(stock_data.iat[i-1,4]))/float(stock_data.iat[i-1,4]),
@@ -39,7 +41,7 @@ def shapeCsv(brand_num,isTestdata):
                             (float(stock_data.iat[i,6]) - float(stock_data.iat[i-1,6]))/float(stock_data.iat[i-1,6]),
                             (float(stock_data.iat[i,7]) - float(stock_data.iat[i-1,7]))/float(stock_data.iat[i-1,7])]]),
                 axis = 0)
-        
+
         return modified_data
 
     else:
